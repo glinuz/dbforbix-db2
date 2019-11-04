@@ -1,0 +1,13 @@
+[Unit]
+Description=DBforBIX Monitoring Agent
+After=network.target
+
+[Service] 
+Type=simple 
+User=zabbix 
+Group=zabbix 
+WorkingDirectory=/opt/dbforbix
+ExecStart=/usr/bin/java -jar dbforbix_run.jar -a start -b /opt/dbforbix #SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target
