@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>3.4</version>
-    <date>2019-11-04T07:56:21Z</date>
+    <date>2019-11-05T06:30:23Z</date>
     <groups>
         <group>
             <name>DBforBIX/Templates</name>
@@ -27,7 +27,7 @@
                     <snmp_oid/>
                     <key>db2.discovery.DBforBIX.config[bufferpool,{$DSN}]</key>
                     <delay>30s</delay>
-                    <status>0</status>
+                    <status>1</status>
                     <allowed_hosts/>
                     <snmpv3_contextname/>
                     <snmpv3_securityname/>
@@ -38,7 +38,7 @@
                     <snmpv3_privpassphrase/>
                     <params>&lt;parms type=&quot;db2&quot; prefix=&quot;db2.&quot;&gt;&#13;
 	&lt;server&gt;&#13;
-	    &lt;discovery time=&quot;30&quot; item=&quot;discovery.DBforBIX.config[bufferpool,{$DSN}]&quot; names=&quot;BUFFERPOOL&quot;&gt;select bp_name from SYSIBMADM.BP_HITRATIO where bp_name not like 'IBMSYSTEM%'&lt;/discovery&gt;       		&#13;
+	    &lt;discovery time=&quot;120&quot; item=&quot;discovery.DBforBIX.config[bufferpool,{$DSN}]&quot; names=&quot;BUFFERPOOL&quot;&gt;select bp_name from SYSIBMADM.BP_HITRATIO where bp_name not like 'IBMSYSTEM%'&lt;/discovery&gt;       		&#13;
 	   &lt;multiquery time=&quot;30&quot; items=&quot;bufferpool.totalhit[%1]|bufferpool.idxhit[%1]&quot; type=&quot;column&quot; nodata=&quot;0&quot;&gt;SELECT BP_NAME as bufferpool,TOTAL_HIT_RATIO_PERCENT AS totalhit, INDEX_HIT_RATIO_PERCENT AS idxhit FROM SYSIBMADM.BP_HITRATIO where bp_name not like 'IBMSYSTEM%'&lt;/multiquery&gt;&#13;
 	&lt;/server&gt;&#13;
 &lt;/parms&gt;</params>
@@ -66,7 +66,7 @@
                             <delay>0</delay>
                             <history>90d</history>
                             <trends>365d</trends>
-                            <status>0</status>
+                            <status>1</status>
                             <value_type>0</value_type>
                             <allowed_hosts/>
                             <units/>
@@ -104,7 +104,7 @@
                             <delay>0</delay>
                             <history>90d</history>
                             <trends>365d</trends>
-                            <status>0</status>
+                            <status>1</status>
                             <value_type>0</value_type>
                             <allowed_hosts/>
                             <units/>
@@ -224,7 +224,7 @@
                             <correlation_mode>0</correlation_mode>
                             <correlation_tag/>
                             <url/>
-                            <status>1</status>
+                            <status>0</status>
                             <priority>3</priority>
                             <description/>
                             <type>0</type>
@@ -267,9 +267,16 @@
                     <privatekey/>
                     <port/>
                     <filter>
-                        <evaltype>0</evaltype>
+                        <evaltype>1</evaltype>
                         <formula/>
-                        <conditions/>
+                        <conditions>
+                            <condition>
+                                <macro>{#TABLESPACE}</macro>
+                                <value>^(?!(TEMPSPACE1|SYSCATSPACE|USERSPACE1|SYSTOOLSPACE))</value>
+                                <operator>8</operator>
+                                <formulaid>A</formulaid>
+                            </condition>
+                        </conditions>
                     </filter>
                     <lifetime>30d</lifetime>
                     <description/>
@@ -351,7 +358,24 @@
                             <master_item_prototype/>
                         </item_prototype>
                     </item_prototypes>
-                    <trigger_prototypes/>
+                    <trigger_prototypes>
+                        <trigger_prototype>
+                            <expression>({DBforBix.DB2:db2.tablespace.totalkb[{#TABLESPACE}].last()}&gt;0) and ({DBforBix.DB2:db2.tablespace.usedkb[{#TABLESPACE}].last()}&gt;{DBforBix.DB2:db2.tablespace.totalkb[{#TABLESPACE}].last()}*0.8)</expression>
+                            <recovery_mode>0</recovery_mode>
+                            <recovery_expression/>
+                            <name>Tablespace free is &lt; 20% ({#TABLESPACE})</name>
+                            <correlation_mode>0</correlation_mode>
+                            <correlation_tag/>
+                            <url/>
+                            <status>0</status>
+                            <priority>2</priority>
+                            <description/>
+                            <type>0</type>
+                            <manual_close>0</manual_close>
+                            <dependencies/>
+                            <tags/>
+                        </trigger_prototype>
+                    </trigger_prototypes>
                     <graph_prototypes/>
                     <host_prototypes/>
                     <jmx_endpoint/>

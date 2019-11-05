@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>3.4</version>
-    <date>2019-11-04T07:56:54Z</date>
+    <date>2019-11-05T06:20:49Z</date>
     <groups>
         <group>
             <name>DBforBIX/Templates</name>
@@ -349,30 +349,7 @@
 					AND d.contents LIKE 'TEMPORARY'&#13;
 				)&#13;
 		&lt;/query&gt;&#13;
-		&lt;query time=&quot;600&quot; item=&quot;session_io_log&quot; nodata=&quot;none&quot;&gt;&#13;
-		select LISTAGG(SUBSTR(sessions_tab,1,395),chr(10)) WITHIN GROUP(ORDER BY PCT desc) sessions from (&#13;
-      select INST_ID||': '||'PCT[R/W/T,MB/s]='||PCT||'['||SESSION_IO_R_MBps||'/'||SESSION_IO_W_MBps||'/'||TOTAL_IO_MBps||'];SQL_(ID/FULL_PLAN_HV)='||SQL_ID||'/'||sql_plan_hash_value||';SID='||sid||'#'||SERIAL#||';(SCH/USER)NAME='||SCHEMANAME||'/'||USERNAME||';STATUS='||STATUS||';TYPE='||TYPE||';OSUSER='||OSUSER||';PROGRAM='||REGEXP_REPLACE(PROGRAM,'@.*$','')||'@'||MACHINE||';PROCESS='||PROCESS||';'||DESCRIPTION sessions_tab, PCT &#13;
-      from (&#13;
-        select b.inst_id,b.sid,b.SERIAL#,b.SCHEMANAME,b.OSUSER,b.USERNAME,b.STATUS,b.SQL_ID,b.PROCESS,b.PROGRAM,b.MACHINE,b.TYPE,&#13;
-          round(100*(sio.SESSION_IO_R+sio.SESSION_IO_W)/fio.TOTAL_IO,2) PCT,round(sio.SESSION_IO_R,2) SESSION_IO_R_MBps,&#13;
-          round(sio.SESSION_IO_W,2) SESSION_IO_W_MBps,round(fio.TOTAL_IO, 2) TOTAL_IO_MBps,p.DESCRIPTION, sio.sql_plan_hash_value &#13;
-        from gv$session b, gv$bgprocess p, (&#13;
-          select inst_id, sum(((DELTA_READ_IO_BYTES/1024/1024)+(DELTA_WRITE_IO_BYTES/1024/1024))/(DELTA_TIME/1000000))/600 total_io &#13;
-          from GV$ACTIVE_SESSION_HISTORY where sample_time &amp;gt; sysdate-10/24/60 &#13;
-          group by inst_id&#13;
-        ) fio,(&#13;
-          select inst_id, session_id,sum((DELTA_READ_IO_BYTES/1024/1024)/(DELTA_TIME/1000000))/600 session_io_r, sum((DELTA_WRITE_IO_BYTES/1024/1024)/(DELTA_TIME/1000000))/600 session_io_w, sql_plan_hash_value &#13;
-          from GV$ACTIVE_SESSION_HISTORY &#13;
-          where sample_time &amp;gt; sysdate-10/24/60&#13;
-          group by inst_id, session_id, sql_plan_hash_value&#13;
-        ) sio &#13;
-        where p.paddr(+) = b.paddr and p.inst_id(+)=b.inst_id &#13;
-              and sio.session_id = b.sid and sio.inst_id=b.inst_id &#13;
-              and fio.inst_id=b.inst_id&#13;
-        order by PCT desc nulls last&#13;
-    ) where rownum &amp;lt; 11)&#13;
-	&lt;/query&gt;&#13;
-	&#13;
+		&#13;
 	&#13;
 	&lt;query time=&quot;600&quot; item=&quot;archivelog_size[%1]&quot; nodata=&quot;0&quot;&gt; &#13;
 	select A.inst_id, round(A.LOGS*B.AVG/10) &#13;
@@ -451,29 +428,7 @@
 	select inst_id, 'sessions', count(*) Sessions from gv$session where SCHEMANAME=upper('{$DB_USER}') group by inst_id&#13;
 	&lt;/query&gt;&#13;
 	&#13;
-	&lt;query time=&quot;600&quot; item=&quot;zabbix_session_io_log&quot; nodata=&quot;none&quot;&gt;&#13;
-	select LISTAGG(SUBSTR(sessions_tab,1,395),chr(10)) WITHIN GROUP(ORDER BY PCT desc) sessions from (&#13;
-      select INST_ID||': '||'PCT[R/W/T,MB/s]='||PCT||'['||SESSION_IO_R_MBps||'/'||SESSION_IO_W_MBps||'/'||TOTAL_IO_MBps||'];SQL_(ID/FULL_PLAN_HV)='||SQL_ID||'/'||sql_plan_hash_value||';SID='||sid||'#'||SERIAL#||';(SCH/USER)NAME='||SCHEMANAME||'/'||USERNAME||';STATUS='||STATUS||';TYPE='||TYPE||';OSUSER='||OSUSER||';PROGRAM='||REGEXP_REPLACE(PROGRAM,'@.*$','')||'@'||MACHINE||';PROCESS='||PROCESS||';'||DESCRIPTION sessions_tab, PCT &#13;
-      from (&#13;
-        select b.inst_id,b.sid,b.SERIAL#,b.SCHEMANAME,b.OSUSER,b.USERNAME,b.STATUS,b.SQL_ID,b.PROCESS,b.PROGRAM,b.MACHINE,b.TYPE,&#13;
-          round(100*(sio.SESSION_IO_R+sio.SESSION_IO_W)/fio.TOTAL_IO,2) PCT,round(sio.SESSION_IO_R,2) SESSION_IO_R_MBps,&#13;
-          round(sio.SESSION_IO_W,2) SESSION_IO_W_MBps,round(fio.TOTAL_IO, 2) TOTAL_IO_MBps,p.DESCRIPTION, sio.sql_plan_hash_value &#13;
-        from gv$session b, gv$bgprocess p, (&#13;
-          select inst_id, sum(((DELTA_READ_IO_BYTES/1024/1024)+(DELTA_WRITE_IO_BYTES/1024/1024))/(DELTA_TIME/1000000))/600 total_io &#13;
-          from GV$ACTIVE_SESSION_HISTORY where sample_time &amp;gt; sysdate-10/24/60 &#13;
-          group by inst_id&#13;
-        ) fio,(&#13;
-          select inst_id, session_id,sum((DELTA_READ_IO_BYTES/1024/1024)/(DELTA_TIME/1000000))/600 session_io_r, sum((DELTA_WRITE_IO_BYTES/1024/1024)/(DELTA_TIME/1000000))/600 session_io_w, sql_plan_hash_value &#13;
-          from GV$ACTIVE_SESSION_HISTORY &#13;
-          where sample_time &amp;gt; sysdate-10/24/60&#13;
-          group by inst_id, session_id, sql_plan_hash_value&#13;
-        ) sio &#13;
-        where p.paddr(+) = b.paddr and p.inst_id(+)=b.inst_id &#13;
-              and sio.session_id = b.sid and sio.inst_id=b.inst_id &#13;
-              and fio.inst_id=b.inst_id and b.SCHEMANAME = upper('{$DB_USER}')&#13;
-        order by PCT desc nulls last&#13;
-    ) where rownum &amp;lt; 11)&#13;
-	&lt;/query&gt;&#13;
+	&#13;
 	&#13;
 	&lt;multiquery time=&quot;60&quot; items=&quot;zabbixsessionioread[%1]|zabbixsessioniowrite[%1]&quot; nodata=&quot;none&quot; type=&quot;column&quot;&gt;&#13;
 	select ash.inst_id, sum((DELTA_READ_IO_BYTES/(DELTA_TIME/1000000))/60), sum((DELTA_WRITE_IO_BYTES/(DELTA_TIME/1000000))/60)&#13;
@@ -3407,7 +3362,7 @@
                             <delay>0</delay>
                             <history>7d</history>
                             <trends>365d</trends>
-                            <status>0</status>
+                            <status>1</status>
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
@@ -3449,7 +3404,7 @@
                             <delay>0</delay>
                             <history>7d</history>
                             <trends>365d</trends>
-                            <status>0</status>
+                            <status>1</status>
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
